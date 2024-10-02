@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model citas {
+  id_cita             Int       @id @default(autoincrement())
+  id_paciente         Int
+  id_medico           Int
+  fecha_cita          DateTime  @db.Date
+  hora_cita           DateTime  @db.Time(6)
+  estado              String?   @default("programada") @db.VarChar(20)
+  fecha_creacion      DateTime? @default(now()) @db.Timestamp(6)
+  fecha_actualizacion DateTime? @default(now()) @db.Timestamp(6)
+  fecha_eliminacion   DateTime? @db.Timestamp(6)
+  tipo_tratamiento    String?   @db.VarChar(100)
+  comentarios         String?
+  medicos             medicos   @relation(fields: [id_medico], references: [id_medico], onDelete: NoAction, onUpdate: NoAction)
+  pacientes           pacientes @relation(fields: [id_paciente], references: [id_paciente], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model evaluaciones {
+  id_evaluacion        Int       @id @default(autoincrement())
+  id_paciente          Int
+  id_medico            Int
+  fecha_evaluacion     DateTime  @db.Date
+  fototipo_piel        String?   @db.VarChar(50)
+  biotipo_cutaneo      String?   @db.VarChar(50)
+  sensibilidad         String?   @db.VarChar(50)
+  alergias             String?
+  medicamentos         String?
+  antecedentes_medicos String?
+  plan_tratamiento     String?
+  estado               String?   @default("activo") @db.VarChar(20)
+  fecha_creacion       DateTime? @default(now()) @db.Timestamp(6)
+  fecha_actualizacion  DateTime? @default(now()) @db.Timestamp(6)
+  fecha_eliminacion    DateTime? @db.Timestamp(6)
+  medicos              medicos   @relation(fields: [id_medico], references: [id_medico], onDelete: NoAction, onUpdate: NoAction)
+  pacientes            pacientes @relation(fields: [id_paciente], references: [id_paciente], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model gastos {
+  id_gasto    Int      @id @default(autoincrement())
+  descripcion String
+  monto       Decimal  @db.Decimal(10, 2)
+  fecha_gasto DateTime @db.Date
+  categoria   String?  @db.VarChar(50)
+  id_usuario  Int
+  medicos     medicos  @relation(fields: [id_usuario], references: [id_medico], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model inventario {
+  id_producto            Int                      @id @default(autoincrement())
+  nombre_producto        String                   @db.VarChar(100)
+  descripcion            String?
+  cantidad               Int
+  fecha_vencimiento      DateTime?                @db.Date
+  precio_compra          Decimal?                 @db.Decimal(10, 2)
+  precio_venta           Decimal?                 @db.Decimal(10, 2)
+  proveedor              String?                  @db.VarChar(100)
+  estado                 String?                  @default("activo") @db.VarChar(20)
+  fecha_creacion         DateTime?                @default(now()) @db.Timestamp(6)
+  fecha_actualizacion    DateTime?                @default(now()) @db.Timestamp(6)
+  fecha_eliminacion      DateTime?                @db.Timestamp(6)
+  movimientos_inventario movimientos_inventario[]
+}
+
+model medicos {
+  id_medico           Int            @id @default(autoincrement())
+  nombre              String         @db.VarChar(100)
+  apellido            String         @db.VarChar(100)
+  especialidad        String?        @db.VarChar(100)
+  telefono            String?        @db.VarChar(20)
+  email               String?        @db.VarChar(100)
+  estado              String?        @default("activo") @db.VarChar(20)
+  fecha_creacion      DateTime?      @default(now()) @db.Timestamp(6)
+  fecha_actualizacion DateTime?      @default(now()) @db.Timestamp(6)
+  fecha_eliminacion   DateTime?      @db.Timestamp(6)
+  fecha_contratacion  DateTime?      @db.Date
+  citas               citas[]
+  evaluaciones        evaluaciones[]
+  gastos              gastos[]
+  reportes            reportes[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model movimientos_inventario {
+  id_movimiento    Int        @id @default(autoincrement())
+  id_producto      Int
+  fecha_movimiento DateTime?  @default(now()) @db.Timestamp(6)
+  tipo_movimiento  String     @db.VarChar(20)
+  cantidad         Int
+  comentarios      String?
+  inventario       inventario @relation(fields: [id_producto], references: [id_producto], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model pacientes {
+  id_paciente         Int            @id @default(autoincrement())
+  nombre              String         @db.VarChar(100)
+  apellido            String         @db.VarChar(100)
+  fecha_nacimiento    DateTime       @db.Date
+  direccion           String?        @db.VarChar(255)
+  telefono            String?        @db.VarChar(20)
+  email               String?        @db.VarChar(100)
+  genero              String?        @db.VarChar(20)
+  estado              String?        @default("activo") @db.VarChar(20)
+  fecha_creacion      DateTime?      @default(now()) @db.Timestamp(6)
+  fecha_actualizacion DateTime?      @default(now()) @db.Timestamp(6)
+  fecha_eliminacion   DateTime?      @db.Timestamp(6)
+  fecha_registro      DateTime?      @default(now()) @db.Timestamp(6)
+  citas               citas[]
+  evaluaciones        evaluaciones[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model reportes {
+  id_reporte       Int       @id @default(autoincrement())
+  tipo_reporte     String    @db.VarChar(20)
+  fecha_generacion DateTime? @default(now()) @db.Timestamp(6)
+  generado_por     Int
+  medicos          medicos   @relation(fields: [generado_por], references: [id_medico], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model usuarios {
+  id_usuario     Int       @id @default(autoincrement())
+  nombre_usuario String    @db.VarChar(50)
+  password       String    @db.VarChar(255)
+  email          String    @db.VarChar(100)
+  rol            String    @db.VarChar(20)
+  fecha_creacion DateTime? @default(now()) @db.Timestamp(6)
+}
