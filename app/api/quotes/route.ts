@@ -18,7 +18,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
+export async function GET() {
   try {
     const quotes = await prisma.citas.findMany({
       include: {
@@ -31,13 +31,29 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
     return NextResponse.error();
   }
 }
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(request: Request) {
+  const {
+    id_paciente,
+    id_medico,
+    fecha_cita,
+    hora_cita,
+    estado,
+    tipo_tratamiento,
+    comentarios
+  } = await request.json();
   try {
-    const { body } = req;
     const quote = await prisma.citas.create({
-      data: body
+      data: {
+        id_paciente,
+        id_medico,
+        fecha_cita,
+        hora_cita,
+        estado,
+        tipo_tratamiento,
+        comentarios
+      }
     });
-    return NextResponse.json(quote);
+    return NextResponse.json(quote, { status: 201 });
   } catch (error) {
     return NextResponse.error();
   }

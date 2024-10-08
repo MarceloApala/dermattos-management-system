@@ -19,7 +19,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import { citas } from '@prisma/client';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CellAction } from '../employee-tables/cell-action';
-
 export const columns: ColumnDef<citas>[] = [
   {
     id: 'select',
@@ -77,5 +76,10 @@ export const columns: ColumnDef<citas>[] = [
   {
     id: 'actions',
     cell: ({ row }) => <CellAction data={row.original} />
+  },
+  {
+    accessorKey: 'cita',
+    header: 'Citas',
+    cell: ({ row }) => row.original.comentarios
   }
 ];

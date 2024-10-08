@@ -1,8 +1,9 @@
 'use client';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import BreadCrumb from '@/components/breadcrumb';
 import { QuotesClient } from '@/components/tables/quote-tables/quote';
+import PageContainer from '@/components/layout/page-container';
 
 /**model citas {
   id_cita             Int       @id @default(autoincrement())
@@ -48,11 +49,11 @@ export default function page() {
     fetchCitas();
   }, []);
   return (
-    <>
+    <PageContainer scrollable={true}>
       <div className="flex-1 space-y-4  p-4 pt-6 md:p-8">
         <BreadCrumb items={breadcrumbItems} />
         <QuotesClient data={citas} />
       </div>
-    </>
+    </PageContainer>
   );
 }

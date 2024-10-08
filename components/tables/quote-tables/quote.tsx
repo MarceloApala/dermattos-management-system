@@ -39,7 +39,7 @@ export const QuotesClient: React.FC<QuotesClientProps> = ({ data }) => {
         />
         <Button
           className="text-xs md:text-sm"
-          onClick={() => router.push(`/dashboard/appointments/create`)}
+          onClick={() => router.push(`/dashboard/quotes/create`)}
         >
           <Plus className="mr-2 h-4 w-4" /> Agregar Cita
         </Button>
